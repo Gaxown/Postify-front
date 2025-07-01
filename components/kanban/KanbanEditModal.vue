@@ -36,7 +36,8 @@
               Created {{ formatDate(task?.createdAt) }}
             </p>
           </div>
-        </div>
+        </div> Cannot apply unknown utility class `bg-gray-100`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+        /home/gaxown/projects/Postify-front/components/kanban/KanbanEditModal.vue
         
         <div class="flex items-center space-x-2">
           <!-- Duplicate Button -->
