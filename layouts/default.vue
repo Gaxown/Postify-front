@@ -6,14 +6,17 @@ import Scheduler from "./scheduler.vue";
 // import Calendar from "./Calendar.vue";
 import login from "./login.vue";
 import teams from "./teams.vue";
+import Calendar from "./Calendar.vue";
+import Kanban from "./kanban.vue";
 </script>
 
 <template>
   <!-- <Calendar /> -->
   <!-- <Kanban /> -->
-  <Scheduler />
-  <login />
-  <teams />
+  <!-- <Scheduler /> -->
+  <!-- <login /> -->
+  <!-- <teams /> -->
+  <Calendar />
   <!-- <PostCreationModal /> -->
   <!-- Posts -->
   <!-- Twitter/X Post -->
@@ -30,5 +33,4 @@ import teams from "./teams.vue";
       createdText: 'You created this 19 hours ago',
     }"
   /> -->
-
 </template>
