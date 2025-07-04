@@ -7,13 +7,15 @@ import Calendar from "./Calendar.vue";
 import login from "./login.vue";
 import teams from "./teams.vue";
 import profiles from "./profiles.vue";
+import Register from "./Register.vue";
 </script>
 
 <template>
   <!-- <profiles /> -->
   <!-- <Calendar /> -->
-  <Kanban />
+  <!-- <Kanban /> -->
   <!-- <Scheduler /> -->
+  <Register />
   <!-- <login /> -->
   <!-- <teams /> -->
   <!-- <PostCreationModal /> -->
