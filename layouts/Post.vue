@@ -760,7 +760,14 @@ const props = defineProps({
     type: String,
     required: true,
     validator: (value) =>
-      ["twitter", "pinterest", "facebook", "tiktok"].includes(value),
+      [
+        "twitter",
+        "pinterest",
+        "facebook",
+        "tiktok",
+        "instagram",
+        "youtube",
+      ].includes(value),
   },
   postData: {
     type: Object,

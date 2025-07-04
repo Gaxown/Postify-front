@@ -6,8 +6,6 @@ import Kanban from "./kanban.vue";
 import Calendar from "./Calendar.vue";
 import login from "./login.vue";
 import teams from "./teams.vue";
-import profiles from "./profiles.vue";
-import Register from "./Register.vue";
 </script>
 
 <template>
@@ -15,9 +13,6 @@ import Register from "./Register.vue";
   <!-- <Calendar /> -->
   <!-- <Kanban /> -->
   <!-- <Scheduler /> -->
-  <Register />
-  <!-- <login /> -->
-  <!-- <teams /> -->
   <!-- <PostCreationModal /> -->
   <!-- Posts -->
   <!-- Twitter/X Post -->
@@ -34,5 +29,4 @@ import Register from "./Register.vue";
       createdText: 'You created this 19 hours ago',
     }"
   /> -->
-
 </template>
