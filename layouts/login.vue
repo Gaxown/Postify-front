@@ -266,21 +266,60 @@ const handleLogin = async () => {
   isLoading.value = true
   
   try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const config = useRuntimeConfig()
+    const { setAuth } = useAuth()
     
-    // Here you would typically make an API call to your authentication endpoint
-    // const response = await $fetch('/api/auth/login', {
-    //   method: 'POST',
-    //   body: loginForm.value
-    // })
+    // Call the backend login API
+    const response = await $fetch<{
+      message: string
+      user: { id: number; name: string; email: string }
+      token: string
+    }>(`${config.public.apiBase}/login`, {
+      method: 'POST',
+      body: {
+        email: loginForm.value.email,
+        password: loginForm.value.password
+      }
+    })
+    console.log('Login response:', response)
+    // Store the auth token and user data
+    if (response.token && response.user) {
+      setAuth(response.token, response.user)
+    }
     
     // On success, redirect to dashboard
     await navigateTo('/')
     
-  } catch (error) {
-    loginError.value = 'Invalid email or password. Please try again.'
+  } catch (error: any) {
     console.error('Login error:', error)
+    
+    // Handle different types of errors
+    if (error.data) {
+      // Backend validation errors
+      if (error.data.errors) {
+        const backendErrors = error.data.errors
+        errors.value = {}
+        
+        if (backendErrors.email) {
+          errors.value.email = backendErrors.email[0]
+        }
+        if (backendErrors.password) {
+          errors.value.password = backendErrors.password[0]
+        }
+        
+        loginError.value = 'Please fix the errors below and try again.'
+      } else if (error.data.message) {
+        loginError.value = error.data.message
+      }
+    } else if (error.statusCode === 401) {
+      loginError.value = 'Invalid email or password. Please try again.'
+    } else if (error.statusCode === 422) {
+      loginError.value = 'Invalid input. Please check your credentials.'
+    } else if (error.statusCode === 500) {
+      loginError.value = 'Server error. Please try again later.'
+    } else {
+      loginError.value = 'Login failed. Please check your connection and try again.'
+    }
   } finally {
     isLoading.value = false
   }

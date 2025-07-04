@@ -298,6 +298,28 @@ interface Errors {
   acceptTerms?: string
 }
 
+interface ApiResponse {
+  message: string
+  user: {
+    id: number
+    name: string
+    email: string
+  }
+  token: string
+}
+
+interface ApiError {
+  data?: {
+    message?: string
+    errors?: {
+      name?: string[]
+      email?: string[]
+      password?: string[]
+    }
+  }
+  statusCode?: number
+}
+
 const registerForm = ref<RegisterForm>({
   fullName: '',
   email: '',
@@ -363,21 +385,27 @@ const handleRegister = async () => {
   isLoading.value = true
   
   try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    const config = useRuntimeConfig()
+    const { setAuth } = useAuth()
     
-    // Here you would typically make an API call to your registration endpoint
-    // const response = await $fetch('/api/auth/register', {
-    //   method: 'POST',
-    //   body: {
-    //     fullName: registerForm.value.fullName,
-    //     email: registerForm.value.email,
-    //     password: registerForm.value.password
-    //   }
-    // })
+    // Call the backend register API
+    const response = await $fetch<ApiResponse>(`${config.public.apiBase}/register`, {
+      method: 'POST',
+      body: {
+        name: registerForm.value.fullName,
+        email: registerForm.value.email,
+        password: registerForm.value.password,
+        password_confirmation: registerForm.value.confirmPassword
+      }
+    })
+    
+    // Store the auth token and user data
+    if (response.token && response.user) {
+      setAuth(response.token, response.user)
+    }
     
     // Show success message
-    successMessage.value = 'Account created successfully! Please check your email to verify your account.'
+    successMessage.value = response.message || 'Account created successfully! Redirecting to dashboard...'
     
     // Reset form
     registerForm.value = {
@@ -388,14 +416,42 @@ const handleRegister = async () => {
       acceptTerms: false
     }
     
-    // Redirect to login after a delay
+    // Redirect to dashboard after successful registration
     setTimeout(() => {
-      navigateTo('/login')
-    }, 3000)
+      navigateTo('/')
+    }, 2000)
     
-  } catch (error) {
-    registerError.value = 'Registration failed. Please try again or contact support if the problem persists.'
+  } catch (error: any) {
     console.error('Registration error:', error)
+    
+    // Handle different types of errors
+    if (error.data) {
+      // Backend validation errors
+      if (error.data.errors) {
+        const backendErrors = error.data.errors
+        errors.value = {}
+        
+        if (backendErrors.name) {
+          errors.value.fullName = backendErrors.name[0]
+        }
+        if (backendErrors.email) {
+          errors.value.email = backendErrors.email[0]
+        }
+        if (backendErrors.password) {
+          errors.value.password = backendErrors.password[0]
+        }
+        
+        registerError.value = 'Please fix the errors below and try again.'
+      } else if (error.data.message) {
+        registerError.value = error.data.message
+      }
+    } else if (error.statusCode === 422) {
+      registerError.value = 'Validation failed. Please check your input and try again.'
+    } else if (error.statusCode === 500) {
+      registerError.value = 'Server error. Please try again later.'
+    } else {
+      registerError.value = 'Registration failed. Please check your connection and try again.'
+    }
   } finally {
     isLoading.value = false
   }
