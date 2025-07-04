@@ -221,7 +221,7 @@
               v-for="hour in timeSlots"
               :key="hour"
               :style="{ minHeight: getHourRowHeight(hour) + 'px' }"
-              class="border-b border-gray-200 p-2 text-xs text-gray-500 flex items-start"
+              class="border-b border-gray-200 p-2 text-xs text-gray-500 flex items-center justify-center relative"
             >
               {{ hour }}
             </div>
@@ -239,7 +239,7 @@
               :key="hour"
               :style="{ minHeight: getHourRowHeight(hour) + 'px' }"
               :class="[
-                'border-b border-gray-200 relative p-1',
+                'border-b border-gray-200 relative p-1 flex flex-col justify-center',
                 isPastDateTime(date.date, hour) ? 'bg-gray-50 opacity-60' : '',
               ]"
               @drop="dropPost($event, date.date, hour)"
@@ -312,7 +312,7 @@ import PostCard from "~/components/calendar/PostCard.vue";
 // Reactive state
 const currentDate = ref(new Date());
 const viewMode = ref("month");
-const filterMode = ref("all"); // Filter for posts by platform
+const filterMode = ref("all");
 const showDatePicker = ref(false);
 const showViewDropdown = ref(false);
 const showFilterDropdown = ref(false);
@@ -443,6 +443,28 @@ const posts = ref([
     status: "scheduled",
   },
 ]);
+
+// fetch posts from localhost api
+const fetchPosts = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/week-posts");
+    // send bearer token from postman for authentication
+    const token = "zliI3Mzqn1zrADBgq3fyii0ed46Ine10XPndvOFd690a08f3";
+    if (token) {
+      response.headers.append("Authorization", `Bearer ${token}`);
+    }
+    if (!response.ok) throw new Error("Failed to fetch posts");
+    const data = await response.json();
+    posts.value = data;
+    console.log("Posts fetched successfully:", posts.value);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+  }
+};
+onMounted(() => {
+  fetchPosts();
+});
+
 // Computed properties
 const currentMonthYear = computed(() => {
   return currentDate.value.toLocaleDateString("en-US", {
@@ -610,7 +632,9 @@ const groupedPosts = computed(() => {
 });
 
 const filteredPosts = computed(() => {
-  if (filterMode.value === "all") return posts.value;
+  // temp = getPostsForDate(date.date);
+  const temp = posts;
+  if (filterMode.value === "all") return temp.value;
 
   return posts.value.filter(
     (post) => post.platform === filterMode.value.toLocaleLowerCase()
@@ -673,12 +697,18 @@ const selectDate = (date) => {
 
 const getPostsForDate = (date) => {
   const dateStr = date.toISOString().split("T")[0];
-  return posts.value.filter((post) => post.date === dateStr);
+  return filteredPosts.value.filter(
+    (post) =>
+      post.date === dateStr &&
+      (filterMode.value === "all"
+        ? true
+        : post.platform === filterMode.value.toLocaleLowerCase())
+  );
 };
 
 const getPostsForDateTime = (date, hour) => {
   const dateStr = date.toISOString().split("T")[0];
-  return posts.value.filter((post) => {
+  return filteredPosts.value.filter((post) => {
     if (post.date !== dateStr) return false;
     const postHour = convertTo24Hour(post.time);
     const slotHour = timeSlots.indexOf(hour);
