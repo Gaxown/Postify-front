@@ -74,7 +74,7 @@
             </div>
 
             <div class="flex items-center justify-between text-sm">
-              <NuxtLink to="/signup" class="text-purple-600 hover:text-purple-500 transition-colors font-medium">
+              <NuxtLink to="/register" class="text-purple-600 hover:text-purple-500 transition-colors font-medium">
                 Create an account
               </NuxtLink>
               <NuxtLink to="/forgot-password" class="text-purple-600 hover:text-purple-500 transition-colors">
@@ -140,19 +140,19 @@
 
           <!-- Main heading -->
           <h1 class="text-4xl font-bold text-white mb-6 leading-tight">
-            Postify's AI Assistant<br>
-            Becomes Social Media<br>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">Smart</span>
+            Postify's Content<br>
+            Management Becomes<br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">Simple</span>
           </h1>
 
           <!-- Description -->
           <p class="text-xl text-purple-100 mb-8 leading-relaxed max-w-md">
-            Create AI-tailored content, designed specifically for your audience and social network.
+            Organize and manage your social media content efficiently with our internal platform.
           </p>
 
           <!-- Mock UI Preview -->
           <div class="relative max-w-md">
-            <!-- AI Assistant Card -->
+            <!-- Content Manager Card -->
             <div class="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg p-4 shadow-xl mb-4">
               <div class="flex items-center space-x-3 mb-3">
                 <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
@@ -162,7 +162,7 @@
                 </div>
                 <div class="flex-1">
                   <div class="flex items-center space-x-2">
-                    <h3 class="font-semibold text-purple-600">🤖 AI Assistant</h3>
+                    <h3 class="font-semibold text-purple-600">📝 Content Manager</h3>
                     <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center">
                       <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z"/>
@@ -174,16 +174,16 @@
               </div>
               
               <div class="mb-3">
-                <p class="text-sm text-gray-600 mb-2">What do you want to write about?</p>
+                <p class="text-sm text-gray-600 mb-2">What content do you want to manage?</p>
                 <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <p class="text-sm text-gray-800">Write a Instagram post about our new...</p>
+                  <p class="text-sm text-gray-800">Schedule Instagram post about our new...</p>
                   <span class="text-red-500 text-lg">×</span>
                 </div>
               </div>
 
               <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
                 <p class="text-sm text-gray-800 leading-relaxed">
-                  Fancy a freshly brewed cup from your local coffee shop? Come and try our new espresso!
+                  Ready to promote our latest product? Let's schedule posts across all platforms!
                 </p>
               </div>
             </div>
@@ -207,8 +207,8 @@
               </div>
               
               <p class="text-xs text-gray-600">
-                Need a pick me up? Nothing beats a fresh cup... 
-                <span class="text-purple-600">down to try our brand new espresso option</span>
+                Manage your social media content... 
+                <span class="text-purple-600">schedule across multiple platforms effortlessly</span>
               </p>
             </div>
           </div>
@@ -266,21 +266,60 @@ const handleLogin = async () => {
   isLoading.value = true
   
   try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const config = useRuntimeConfig()
+    const { setAuth } = useAuth()
     
-    // Here you would typically make an API call to your authentication endpoint
-    // const response = await $fetch('/api/auth/login', {
-    //   method: 'POST',
-    //   body: loginForm.value
-    // })
+    // Call the backend login API
+    const response = await $fetch<{
+      message: string
+      user: { id: number; name: string; email: string }
+      token: string
+    }>(`${config.public.apiBase}/login`, {
+      method: 'POST',
+      body: {
+        email: loginForm.value.email,
+        password: loginForm.value.password
+      }
+    })
+    console.log('Login response:', response)
+    // Store the auth token and user data
+    if (response.token && response.user) {
+      setAuth(response.token, response.user)
+    }
     
     // On success, redirect to dashboard
     await navigateTo('/')
     
-  } catch (error) {
-    loginError.value = 'Invalid email or password. Please try again.'
+  } catch (error: any) {
     console.error('Login error:', error)
+    
+    // Handle different types of errors
+    if (error.data) {
+      // Backend validation errors
+      if (error.data.errors) {
+        const backendErrors = error.data.errors
+        errors.value = {}
+        
+        if (backendErrors.email) {
+          errors.value.email = backendErrors.email[0]
+        }
+        if (backendErrors.password) {
+          errors.value.password = backendErrors.password[0]
+        }
+        
+        loginError.value = 'Please fix the errors below and try again.'
+      } else if (error.data.message) {
+        loginError.value = error.data.message
+      }
+    } else if (error.statusCode === 401) {
+      loginError.value = 'Invalid email or password. Please try again.'
+    } else if (error.statusCode === 422) {
+      loginError.value = 'Invalid input. Please check your credentials.'
+    } else if (error.statusCode === 500) {
+      loginError.value = 'Server error. Please try again later.'
+    } else {
+      loginError.value = 'Login failed. Please check your connection and try again.'
+    }
   } finally {
     isLoading.value = false
   }
