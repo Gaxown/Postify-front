@@ -1,19 +1,21 @@
 <script setup lang="ts">
 // import Post from "./Post.vue";
 import Scheduler from "./scheduler.vue";
-// import Kanban from "./kanban.vue";
+import Kanban from "./kanban.vue";
 // import PostCreationModal from "./PostCreationModal.vue";
-// import Calendar from "./Calendar.vue";
+import Calendar from "./Calendar.vue";
 import login from "./login.vue";
 import teams from "./teams.vue";
+import profiles from "./profiles.vue";
 </script>
 
 <template>
+  <!-- <profiles /> -->
   <!-- <Calendar /> -->
-  <!-- <Kanban /> -->
-  <Scheduler />
-  <login />
-  <teams />
+  <Kanban />
+  <!-- <Scheduler /> -->
+  <!-- <login /> -->
+  <!-- <teams /> -->
   <!-- <PostCreationModal /> -->
   <!-- Posts -->
   <!-- Twitter/X Post -->
