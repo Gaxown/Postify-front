@@ -82,101 +82,12 @@
     </div>
 
     <!-- Create Profile Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeCreateModal">
-      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4" @click.stop>
-        <h3 class="text-xl font-semibold text-gray-900 mb-4">Create New Profile</h3>
-        
-        <form @submit.prevent="createProfile">
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-            <input
-              v-model="newProfile.name"
-              type="text"
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              placeholder="Enter company name"
-            />
-          </div>
-          
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
-              v-model="newProfile.description"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              placeholder="Brief description of the company"
-            ></textarea>
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Avatar</label>
-            <div class="flex items-center space-x-4">
-              <!-- Avatar Preview -->
-              <div class="border-2 border-gray-200 rounded-full">
-                <ProfileAvatar 
-                  :name="newProfile.name || 'New Profile'"
-                  :avatar="newProfile.avatar"
-                  :color="newProfile.color"
-                  size="lg"
-                />
-              </div>
-              
-              <!-- Upload Button -->
-              <div class="flex-1">
-                <input
-                  ref="avatarInput"
-                  type="file"
-                  accept="image/*"
-                  @change="handleAvatarUpload"
-                  class="hidden"
-                />
-                <button
-                  type="button"
-                  @click="triggerFileInput"
-                  class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                  Choose Image
-                </button>
-                <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 2MB</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
-            <div class="flex space-x-2">
-              <div
-                v-for="color in profileColors"
-                :key="color"
-                @click="newProfile.color = color"
-                class="w-8 h-8 rounded-lg cursor-pointer border-2 transition-all"
-                :style="{ backgroundColor: color }"
-                :class="newProfile.color === color ? 'border-gray-900 scale-110' : 'border-gray-300'"
-              ></div>
-            </div>
-          </div>
-          
-          <div class="flex space-x-3">
-            <button
-              type="button"
-              @click="closeCreateModal"
-              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              Create Profile
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <CreateFormModal
+      :show-modal="showCreateModal"
+      type="profile"
+      @close="closeCreateModal"
+      @submit="createProfile"
+    />
 
     <!-- Page Content Slot -->
     <slot />
@@ -188,12 +99,14 @@ import { ref } from 'vue'
 import ProfileCard from '@/components/profile/ProfileCard.vue'
 import ProfileAvatar from '@/components/profile/ProfileAvatar.vue'
 import CreateProfileCard from '@/components/profile/CreateProfileCard.vue'
+import CreateFormModal from '@/components/ui/CreateFormModal.vue'
 
 interface SocialAccount {
   id: string
   platform: string
   username: string
   followers: number
+  status?: string
 }
 
 interface Profile {
@@ -208,6 +121,7 @@ interface Profile {
   accounts: SocialAccount[]
   platforms: string[]
   createdAt: string
+  status?: string
 }
 
 const profiles = ref<Profile[]>([
@@ -336,22 +250,9 @@ const profiles = ref<Profile[]>([
 const showCreateModal = ref(false)
 const showInviteModal = ref(false)
 
-const newProfile = ref({
-  name: '',
-  description: '',
-  color: '#8B5CF6',
-  avatar: ''
-})
-
 const inviteForm = ref({
   email: ''
 })
-
-const profileColors = [
-  '#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'
-]
-
-const avatarInput = ref<HTMLInputElement | null>(null)
 
 const openCreateModal = () => {
   showCreateModal.value = true
@@ -359,7 +260,6 @@ const openCreateModal = () => {
 
 const closeCreateModal = () => {
   showCreateModal.value = false
-  newProfile.value = { name: '', description: '', color: '#8B5CF6', avatar: '' }
 }
 
 const openInviteModal = () => {
@@ -379,13 +279,13 @@ const sendInvitation = () => {
   closeInviteModal()
 }
 
-const createProfile = () => {
+const createProfile = (formData: any) => {
   const profile: Profile = {
     id: Date.now().toString(),
-    name: newProfile.value.name,
-    description: newProfile.value.description,
-    avatar: newProfile.value.avatar,
-    color: newProfile.value.color,
+    name: formData.name,
+    description: formData.description,
+    avatar: formData.avatar,
+    color: formData.color,
     teamId: '',
     teamName: '',
     teamColor: '#8B5CF6',
@@ -401,36 +301,6 @@ const createProfile = () => {
 
 const selectProfile = (profile: Profile) => {
   console.log('Selected profile:', profile.name)
-}
-
-const triggerFileInput = () => {
-  avatarInput.value?.click()
-}
-
-const handleAvatarUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  
-  if (file) {
-    // Check file size (2MB limit)
-    if (file.size > 2 * 1024 * 1024) {
-      alert('File size must be less than 2MB')
-      return
-    }
-    
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
-      return
-    }
-    
-    // Create object URL for preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      newProfile.value.avatar = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  }
 }
 
 

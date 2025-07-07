@@ -3,11 +3,13 @@ import Calendar from "./Calendar.vue";
 import Kanban from "./Kanban.vue";
 import Login from "./Login.vue";
 import teams from "./teams.vue";
+import profiles from "./profiles.vue";
+
 
 </script>
 
 <template>
-  <!-- <profiles /> -->
+  <profiles />
   <!-- <Calendar /> -->
   <!-- <Login /> -->
   <teams />

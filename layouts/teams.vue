@@ -67,76 +67,14 @@
     </div>
 
     <!-- Create Team Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeCreateModal">
-      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4" @click.stop>
-        <h3 class="text-xl font-semibold text-gray-900 mb-4">Create New Team</h3>
-        
-        <!-- Error Message -->
-        <div v-if="error" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-sm text-red-600">{{ error }}</p>
-        </div>
-        
-        <form @submit.prevent="createTeam">
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Team Name</label>
-            <input
-              v-model="newTeam.name"
-              type="text"
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              placeholder="Enter team name"
-            />
-          </div>
-          
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
-              v-model="newTeam.description"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              placeholder="Describe your team's purpose"
-            ></textarea>
-          </div>
-          
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Team Color</label>
-            <div class="flex space-x-2">
-              <div
-                v-for="color in teamColors"
-                :key="color"
-                @click="newTeam.color = color"
-                :class="[
-                  'w-8 h-8 rounded-lg cursor-pointer border-2 transition-all',
-                  newTeam.color === color ? 'border-gray-400 scale-110' : 'border-gray-200'
-                ]"
-                :style="{ backgroundColor: color }"
-              ></div>
-            </div>
-          </div>
-          
-          <div class="flex space-x-3">
-            <button
-              type="button"
-              @click="closeCreateModal"
-              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span v-if="loading" class="flex items-center justify-center">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Creating...
-              </span>
-              <span v-else>Create Team</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <CreateFormModal
+      :show-modal="showCreateModal"
+      type="team"
+      :loading="loading"
+      :error="error"
+      @close="closeCreateModal"
+      @submit="createTeam"
+    />
 
     <!-- Page Content Slot -->
     <slot />
@@ -148,6 +86,7 @@ import { ref, onMounted } from 'vue'
 import TeamCard from '@/components/teams/TeamCard.vue'
 import CreateTeamCard from '@/components/teams/CreateTeamCard.vue'
 import TeamInvitations from '@/components/teams/TeamInvitations.vue'
+import CreateFormModal from '@/components/ui/CreateFormModal.vue'
 
 interface TeamMember {
   id: string
@@ -285,15 +224,6 @@ const pendingInvitations = ref<TeamInvitation[]>([
 ])
 
 const showCreateModal = ref(false)
-const newTeam = ref({
-  name: '',
-  description: '',
-  color: '#8B5CF6'
-})
-
-const teamColors = [
-  '#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'
-]
 
 const openCreateModal = () => {
   showCreateModal.value = true
@@ -302,16 +232,15 @@ const openCreateModal = () => {
 
 const closeCreateModal = () => {
   showCreateModal.value = false
-  newTeam.value = { name: '', description: '', color: '#8B5CF6' }
   clearError() // Clear errors when closing
 }
 
-const createTeam = async () => {
+const createTeam = async (formData: any) => {
   try {
     await createTeamAPI({
-      name: newTeam.value.name,
-      description: newTeam.value.description,
-      color: newTeam.value.color
+      name: formData.name,
+      description: formData.description,
+      color: formData.color
     })
     closeCreateModal()
   } catch (err) {
