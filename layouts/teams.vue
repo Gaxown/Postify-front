@@ -60,20 +60,15 @@
         <TeamCard
           v-for="team in teams"
           :key="team.id"
-          :team="team as any"
-          @select="selectTeam"
+          :team="team"
         />
       </div>
     </div>
 
     <!-- Create Team Modal -->
     <CreateFormModal
-      :show-modal="showCreateModal"
+      ref="createModalRef"
       type="team"
-      :loading="loading"
-      :error="error"
-      @close="closeCreateModal"
-      @submit="createTeam"
     />
 
     <!-- Page Content Slot -->
@@ -112,8 +107,73 @@ interface TeamInvitation {
   invitedAt: string
 }
 
-// Use teams composable for API integration
-const { teams, loading, error, fetchTeams, createTeam: createTeamAPI, selectTeam: selectTeamAPI, clearError } = useTeams()
+// Direct API integration instead of using composable
+const { getAuthHeaders } = useAuth()
+const teams = ref<Team[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBase || 'http://localhost:8000/api'
+
+const fetchTeams = async () => {
+  loading.value = true
+  error.value = null
+
+  try {
+    // Prepare headers with authentication
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+    Object.assign(headers, getAuthHeaders())
+    
+    const response = await $fetch(`${apiBase}/teams`, {
+      method: 'GET',
+      headers
+    }) as { 
+      user: { id: number; name: string; email: string }
+      teams: { 
+        id: number
+        name: string
+        description: string
+        color: string
+        created_at: string
+        users?: { id: number; name: string; email: string }[]
+      }[]
+    }
+
+    teams.value = response.teams.map((team) => ({
+      ...team,
+      id: team.id.toString(),
+      createdAt: team.created_at,
+      // Map Laravel user relationships to our expected format
+      members: team.users?.map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email
+      })) || []
+    }))
+
+  } catch (err) {
+    const httpError = err as { status?: number }
+    if (httpError.status === 401) {
+      error.value = 'Please log in to access teams'
+    } else {
+      error.value = 'Failed to load teams. Please try again.'
+    }
+    teams.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+const clearError = () => {
+  error.value = null
+}
+
+// Modal ref
+const createModalRef = ref(null)
 
 const pendingInvitations = ref<TeamInvitation[]>([
   {
@@ -223,35 +283,11 @@ const pendingInvitations = ref<TeamInvitation[]>([
   }
 ])
 
-const showCreateModal = ref(false)
-
 const openCreateModal = () => {
-  showCreateModal.value = true
   clearError() // Clear any previous errors
-}
-
-const closeCreateModal = () => {
-  showCreateModal.value = false
-  clearError() // Clear errors when closing
-}
-
-const createTeam = async (formData: any) => {
-  try {
-    await createTeamAPI({
-      name: formData.name,
-      description: formData.description,
-      color: formData.color
-    })
-    closeCreateModal()
-  } catch (err) {
-    console.error('Failed to create team:', err)
-    // Error is already set in the composable, no need to handle here
-    // The error will be displayed in the modal
+  if (createModalRef.value) {
+    (createModalRef.value as any).openModal()
   }
-}
-
-const selectTeam = (team: any) => {
-  selectTeamAPI(team)
 }
 
 // Load teams when component mounts

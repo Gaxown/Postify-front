@@ -6,10 +6,15 @@
         <div class="flex justify-between items-center py-6">
           <div>
             <h1 class="text-3xl font-bold text-gray-900">Business Profiles</h1>
-            <p class="mt-1 text-gray-500">Manage your company profiles and social media accounts</p>
+            <p class="mt-1 text-gray-500">
+              Manage your company profiles and social media accounts
+            </p>
           </div>
           <div class="flex items-center space-x-4">
+            
+            
             <button
+              v-if="selectedTeamId"
               @click="openInviteModal"
               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
             >
@@ -19,6 +24,7 @@
               Send Invitation
             </button>
             <button
+              v-if="selectedTeamId"
               @click="openCreateModal"
               class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 transform hover:scale-105"
             >
@@ -32,18 +38,52 @@
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="loading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      <span class="ml-3 text-gray-600">Loading profiles...</span>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="text-center py-12">
+        <div class="text-red-600 mb-4">{{ error }}</div>
+        <button 
+          @click="fetchProfiles"
+          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+
     <!-- Profiles Grid -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- No team selected -->
+      <div v-if="!selectedTeamId" class="text-center py-12">
+        <div class="text-gray-500 mb-4">Please select a team to view profiles</div>
+      </div>
+
+      <!-- No profiles found -->
+      <div v-else-if="profiles.length === 0" class="text-center py-12">
+        <div class="text-gray-500 mb-4">No profiles found for this team</div>
+        <button
+          @click="openCreateModal"
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+        >
+          Create First Profile
+        </button>
+      </div>
+
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <!-- Create New Profile Card -->
         <CreateProfileCard @create="openCreateModal" />
 
         <!-- Profile Cards -->
         <ProfileCard
-          v-for="profile in profiles"
-          :key="profile.id"
+          v-for="(profile, index) in profiles"
+          :key="index"
           :profile="profile"
-          @select="selectProfile"
         />
       </div>
     </div>
@@ -83,10 +123,8 @@
 
     <!-- Create Profile Modal -->
     <CreateFormModal
-      :show-modal="showCreateModal"
+      ref="createModalRef"
       type="profile"
-      @close="closeCreateModal"
-      @submit="createProfile"
     />
 
     <!-- Page Content Slot -->
@@ -95,159 +133,99 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import ProfileCard from '@/components/profile/ProfileCard.vue'
-import ProfileAvatar from '@/components/profile/ProfileAvatar.vue'
+import { ref, onMounted } from 'vue'
+import ProfileCard, { type Profile } from '@/components/profile/ProfileCard.vue'
 import CreateProfileCard from '@/components/profile/CreateProfileCard.vue'
 import CreateFormModal from '@/components/ui/CreateFormModal.vue'
 
-interface SocialAccount {
-  id: string
-  platform: string
-  username: string
-  followers: number
-  status?: string
-}
+// Reactive data
+const profiles = ref<Profile[]>([])
+const loading = ref<boolean>(false)
+const error = ref<string | null>(null)
+const selectedTeamId = ref<number | null>(null)
 
-interface Profile {
-  id: string
-  name: string
-  description: string
-  avatar?: string
-  color: string
-  teamId: string
-  teamName: string
-  teamColor: string
-  accounts: SocialAccount[]
-  platforms: string[]
-  createdAt: string
-  status?: string
-}
+// Modal refs
+const createModalRef = ref<{ openModal: () => void } | null>(null)
 
-const profiles = ref<Profile[]>([
-  {
-    id: '1',
-    name: 'Tech Innovators Ltd',
-    description: 'Leading technology solutions company',
-    avatar: '',
-    color: '#8B5CF6',
-    teamId: '1',
-    teamName: 'Marketing Team',
-    teamColor: '#8B5CF6',
-    createdAt: '2024-01-15',
-    platforms: ['instagram', 'x', 'facebook', 'linkedin', 'youtube'],
-    accounts: [
-      { id: '1', platform: 'instagram', username: '@techinnovators', followers: 25400 },
-      { id: '2', platform: 'x', username: '@tech_innovators', followers: 12800 },
-      { id: '3', platform: 'linkedin', username: 'tech-innovators-ltd', followers: 8500 }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Green Earth Solutions',
-    description: 'Sustainable and eco-friendly products',
-    avatar: '',
-    color: '#10B981',
-    teamId: '1',
-    teamName: 'Marketing Team',
-    teamColor: '#8B5CF6',
-    createdAt: '2024-02-01',
-    platforms: ['instagram', 'facebook', 'tiktok'],
-    accounts: [
-      { id: '4', platform: 'instagram', username: '@greenearth', followers: 45200 },
-      { id: '5', platform: 'facebook', username: 'GreenEarthSolutions', followers: 32100 }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Digital Marketing Pro',
-    description: 'Professional digital marketing services',
-    avatar: '',
-    color: '#3B82F6',
-    teamId: '2',
-    teamName: 'Product Team',
-    teamColor: '#3B82F6',
-    createdAt: '2024-01-20',
-    platforms: ['instagram', 'x', 'linkedin', 'youtube', 'tiktok', 'pinterest'],
-    accounts: [
-      { id: '6', platform: 'instagram', username: '@digitalmarketingpro', followers: 18900 },
-      { id: '7', platform: 'youtube', username: 'DigitalMarketingPro', followers: 15600 }
-    ]
-  },
-  {
-    id: '4',
-    name: 'Fashion Forward',
-    description: 'Trendy fashion and lifestyle brand',
-    avatar: '',
-    color: '#EC4899',
-    teamId: '1',
-    teamName: 'Marketing Team',
-    teamColor: '#8B5CF6',
-    status: 'active',
-    createdAt: '2024-01-25',
-    platforms: ['instagram', 'tiktok', 'pinterest', 'facebook'],
-    accounts: [
-      { id: '8', platform: 'instagram', username: '@fashionforward', followers: 67300, status: 'connected' },
-      { id: '9', platform: 'tiktok', username: '@fashion_forward', followers: 124500, status: 'connected' }
-    ]
-  },
-  {
-    id: '5',
-    name: 'Andalous',
-    description: 'Traditional Moroccan cuisine restaurant',
-    avatar: '',
-    color: '#F59E0B',
-    teamId: '3',
-    teamName: 'Sales Team',
-    teamColor: '#10B981',
-    status: 'active',
-    createdAt: '2024-02-10',
-    platforms: ['instagram', 'facebook', 'tiktok'],
-    accounts: [
-      { id: '10', platform: 'instagram', username: '@restaurant_andalus', followers: 12400, status: 'connected' },
-      { id: '11', platform: 'facebook', username: 'RestaurantAndalus', followers: 8900, status: 'connected' },
-      { id: '12', platform: 'tiktok', username: '@andalus_food', followers: 5600, status: 'connected' }
-    ]
-  },
-  {
-    id: '6',
-    name: 'TechStart Morocco',
-    description: 'Startup accelerator and tech hub',
-    avatar: '',
-    color: '#7C3AED',
-    teamId: '2',
-    teamName: 'Product Team',
-    teamColor: '#3B82F6',
-    status: 'active',
-    createdAt: '2024-01-30',
-    platforms: ['linkedin', 'twitter', 'youtube', 'instagram'],
-    accounts: [
-      { id: '13', platform: 'linkedin', username: 'techstart-morocco', followers: 15200, status: 'connected' },
-      { id: '14', platform: 'twitter', username: '@techstartma', followers: 9800, status: 'connected' },
-      { id: '15', platform: 'youtube', username: 'TechStartMorocco', followers: 4300, status: 'connected' }
-    ]
-  },
-  {
-    id: '7',
-    name: 'Atlas Fitness Center',
-    description: 'Premium fitness and wellness center',
-    avatar: '',
-    color: '#EF4444',
-    teamId: '1',
-    teamName: 'Marketing Team',
-    teamColor: '#8B5CF6',
-    status: 'active',
-    createdAt: '2024-02-05',
-    platforms: ['instagram', 'tiktok', 'facebook', 'youtube'],
-    accounts: [
-      { id: '16', platform: 'instagram', username: '@atlas_fitness', followers: 23700, status: 'connected' },
-      { id: '17', platform: 'tiktok', username: '@atlas_gym', followers: 18900, status: 'connected' },
-      { id: '18', platform: 'youtube', username: 'AtlasFitnessCenter', followers: 7400, status: 'connected' }
-    ]
+// Get API base URL from runtime config
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBase
+
+// Use authentication composable
+const { getAuthHeaders, isAuthenticated } = useAuth()
+
+// Get route to check for team parameter
+const route = useRoute()
+
+// Initialize from URL and load profiles
+const initializeFromUrl = async () => {
+  if (!isAuthenticated.value) return
+
+  // Get team ID from URL parameter
+  const teamIdFromUrl = route.query.team ? parseInt(route.query.team as string) : null
+  
+  if (teamIdFromUrl) {
+    selectedTeamId.value = teamIdFromUrl
+    await fetchProfiles()
+  } else {
+    error.value = 'Please select a team to view profiles'
   }
-])
+}
 
-const showCreateModal = ref(false)
+// API call to fetch profiles for a specific team
+const fetchProfiles = async () => {
+  if (!selectedTeamId.value) return
+  
+  // Check if user is authenticated
+  if (!isAuthenticated.value) {
+    error.value = 'Please log in to access profiles'
+    return
+  }
+  
+  loading.value = true
+  error.value = null
+  
+  try {
+    // Prepare headers with authentication
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+    Object.assign(headers, getAuthHeaders())
+    
+    const response = await $fetch(`${apiBase}/teams/${selectedTeamId.value}/profiles`, {
+      method: 'GET',
+      headers
+    }) as { name: string; description?: string; avatar?: string; color?: string; social_accounts?: { platform: string }[] }[]
+    
+    // Transform API response - keep only what's needed
+    profiles.value = response.map((profile) => ({
+      name: profile.name || '',
+      description: profile.description || 'No description available',
+      avatar: profile.avatar ? `${apiBase.replace('/api', '')}/storage/${profile.avatar}` : '',
+      color: profile.color || '#8B5CF6',
+      accounts: profile.social_accounts?.map((acc) => ({
+        platform: acc.platform
+      })) || []
+    }))
+  } catch (err) {
+    const httpError = err as { status?: number }
+    if (httpError.status === 401) {
+      error.value = 'Please log in to access profiles'
+    } else {
+      error.value = 'Failed to load profiles. Please try again.'
+    }
+    profiles.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+// Load profiles when component mounts
+onMounted(async () => {
+  await initializeFromUrl()
+})
+
 const showInviteModal = ref(false)
 
 const inviteForm = ref({
@@ -255,11 +233,9 @@ const inviteForm = ref({
 })
 
 const openCreateModal = () => {
-  showCreateModal.value = true
-}
-
-const closeCreateModal = () => {
-  showCreateModal.value = false
+  if (createModalRef.value) {
+    createModalRef.value.openModal()
+  }
 }
 
 const openInviteModal = () => {
@@ -279,30 +255,8 @@ const sendInvitation = () => {
   closeInviteModal()
 }
 
-const createProfile = (formData: any) => {
-  const profile: Profile = {
-    id: Date.now().toString(),
-    name: formData.name,
-    description: formData.description,
-    avatar: formData.avatar,
-    color: formData.color,
-    teamId: '',
-    teamName: '',
-    teamColor: '#8B5CF6',
-    status: 'active',
-    createdAt: new Date().toISOString().split('T')[0],
-    platforms: [],
-    accounts: []
-  }
-  
-  profiles.value.unshift(profile)
-  closeCreateModal()
-}
-
-const selectProfile = (profile: Profile) => {
-  console.log('Selected profile:', profile.name)
-}
-
+// createProfile function removed - now handled by CreateFormModal internally
+// selectProfile function removed - no more click events on profile cards
 
 </script>
 

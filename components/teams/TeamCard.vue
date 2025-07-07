@@ -1,7 +1,7 @@
 <template>
   <div
     class="group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer"
-    @click="$emit('select', team)"
+    @click="selectTeam"
   >
     <div class="p-6">
       <div class="flex items-center justify-between mb-4">
@@ -62,9 +62,10 @@ interface Props {
   team: Team
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
-defineEmits<{
-  select: [team: Team]
-}>()
+const selectTeam = () => {
+  // Navigate to profiles page with selected team
+  navigateTo(`/profiles?team=${props.team.id}`)
+}
 </script> 

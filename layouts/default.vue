@@ -9,7 +9,7 @@ import profiles from "./profiles.vue";
 </script>
 
 <template>
-  <profiles />
+  <!-- <profiles /> -->
   <!-- <Calendar /> -->
   <!-- <Login /> -->
   <teams />

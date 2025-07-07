@@ -1,14 +1,11 @@
 <template>
-  <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeModal">
+  <div v-if="isVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeModal">
     <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4" @click.stop>
       <h3 class="text-xl font-semibold text-gray-900 mb-4">
         {{ type === 'profile' ? 'Create New Profile' : 'Create New Team' }}
       </h3>
       
-      <!-- Error Message -->
-      <div v-if="error" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-        <p class="text-sm text-red-600">{{ error }}</p>
-      </div>
+
       
       <form @submit.prevent="handleSubmit">
         <div class="mb-4">
@@ -100,10 +97,10 @@
           </button>
           <button
             type="submit"
-            :disabled="loading"
+            :disabled="internalLoading"
             class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span v-if="loading" class="flex items-center justify-center">
+            <span v-if="internalLoading" class="flex items-center justify-center">
               <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               {{ type === 'profile' ? 'Creating...' : 'Creating...' }}
             </span>
@@ -116,31 +113,28 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import ProfileAvatar from '@/components/profile/ProfileAvatar.vue'
+
+// Get API config and auth
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBase
+const { getAuthHeaders, isAuthenticated } = useAuth()
+const route = useRoute()
 
 // Props - ce que le composant reçoit de l'extérieur
 const props = defineProps({
-  showModal: {
-    type: Boolean,
-    default: false
-  },
   type: {
     type: String, // 'profile' ou 'team'
     required: true
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  },
-  error: {
-    type: String,
-    default: null
   }
 })
 
-// Events - ce que le composant envoie vers l'extérieur
-const emit = defineEmits(['close', 'submit'])
+// État interne du modal
+const isVisible = ref(false)
+const internalLoading = ref(false)
+
+// Pas d'emits - gestion interne
 
 // Données du formulaire
 const formData = ref({
@@ -149,6 +143,9 @@ const formData = ref({
   color: '#8B5CF6',
   avatar: ''
 })
+
+// Stocker le fichier réel pour l'upload
+const avatarFile = ref(null)
 
 // Référence pour l'input file
 const avatarInput = ref(null)
@@ -159,9 +156,14 @@ const colors = [
 ]
 
 // Fonctions
+const openModal = () => {
+  isVisible.value = true
+}
+
 const closeModal = () => {
-  emit('close')
+  // Reset et fermer le modal
   resetForm()
+  isVisible.value = false
 }
 
 const resetForm = () => {
@@ -171,11 +173,92 @@ const resetForm = () => {
     color: '#8B5CF6',
     avatar: ''
   }
+  avatarFile.value = null
 }
 
-const handleSubmit = () => {
-  // Envoyer les données du formulaire au parent
-  emit('submit', formData.value)
+// API Functions
+const createTeam = async (formData) => {
+  internalLoading.value = true
+
+  try {
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+    Object.assign(headers, getAuthHeaders())
+
+    await $fetch(`${apiBase}/teams`, {
+      method: 'POST',
+      headers,
+      body: {
+        name: formData.name,
+        description: formData.description,
+        color: formData.color
+      }
+    })
+
+    // Success - close and refresh
+    resetForm()
+    isVisible.value = false
+    window.location.reload()
+
+  } catch (err) {
+    console.error('Create team error:', err)
+  } finally {
+    internalLoading.value = false
+  }
+}
+
+const createProfile = async (formData) => {
+  const teamId = route.query.team ? parseInt(route.query.team) : null
+  
+  internalLoading.value = true
+
+  try {
+    const uploadData = new FormData()
+    uploadData.append('name', formData.name)
+    uploadData.append('description', formData.description || '')
+    
+    if (formData.avatarFile) {
+      uploadData.append('avatar', formData.avatarFile)
+    }
+
+    const headers = {
+      'Accept': 'application/json'
+    }
+    Object.assign(headers, getAuthHeaders())
+
+    await $fetch(`${apiBase}/teams/${teamId}/profiles`, {
+      method: 'POST',
+      headers,
+      body: uploadData
+    })
+
+    // Success - close and refresh
+    resetForm()
+    isVisible.value = false
+    window.location.reload()
+
+  } catch (err) {
+    console.error('Create profile error:', err)
+  } finally {
+    internalLoading.value = false
+  }
+}
+
+const handleSubmit = async () => {
+  const submitData = {
+    ...formData.value,
+    avatarFile: avatarFile.value
+  }
+  
+  console.log('Form submitted:', submitData)
+  
+  if (props.type === 'team') {
+    await createTeam(submitData)
+  } else if (props.type === 'profile') {
+    await createProfile(submitData)
+  }
 }
 
 const triggerFileInput = () => {
@@ -198,6 +281,9 @@ const handleAvatarUpload = (event) => {
       return
     }
     
+    // Stocker le fichier réel pour l'upload
+    avatarFile.value = file
+    
     // Créer l'aperçu
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -207,10 +293,8 @@ const handleAvatarUpload = (event) => {
   }
 }
 
-// Réinitialiser le formulaire quand le modal se ferme
-watch(() => props.showModal, (newValue) => {
-  if (!newValue) {
-    resetForm()
-  }
+// Exposer la méthode pour ouvrir le modal depuis l'extérieur
+defineExpose({
+  openModal
 })
 </script> 

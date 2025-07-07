@@ -1,10 +1,10 @@
 <template>
   <div class="flex space-x-0.5">
     <div
-      v-for="account in displayedAccounts"
-      :key="account.id"
+      v-for="(account, index) in displayedAccounts"
+      :key="index"
       class="w-8 h-8 flex items-center justify-center"
-      :title="`${account.platform}: ${account.username} (${account.followers.toLocaleString()} followers)`"
+      :title="account.platform"
     >
       <!-- Facebook -->
       <Facebook v-if="account.platform === 'facebook'" class="w-4 h-4 text-blue-600" />
@@ -49,24 +49,20 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 import { Facebook, Instagram, Linkedin, Youtube } from 'lucide-vue-next'
 
-interface SocialAccount {
-  id: string
-  platform: string
-  username: string
-  followers: number
-}
-
-interface Props {
-  accounts: SocialAccount[]
-  maxDisplay?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  maxDisplay: 5
+const props = defineProps({
+  accounts: {
+    type: Array,
+    required: true,
+    default: () => []
+  },
+  maxDisplay: {
+    type: Number,
+    default: 5
+  }
 })
 
 const displayedAccounts = computed(() => {
