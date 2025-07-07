@@ -298,10 +298,10 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  layout: "app",
-  // middleware: "auth",
-});
+// definePageMeta({
+//   layout: "app",
+//   // middleware: "auth",
+// });
 // Reactive data
 const activeTab = ref("queue");
 const showNewPostModal = ref(false);

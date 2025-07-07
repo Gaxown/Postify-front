@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import Calendar from "./Calendar.vue";
-import Kanban from "./Kanban.vue";
-import Login from "./Login.vue";
 import teams from "./teams.vue";
-
 </script>
 
 <template>
