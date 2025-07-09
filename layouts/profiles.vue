@@ -4,11 +4,13 @@
     <div class="bg-white border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-6">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900">Business Profiles</h1>
-            <p class="mt-1 text-gray-500">
-              Manage your company profiles and social media accounts
-            </p>
+          <div class="flex items-center space-x-4">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900">Business Profiles</h1>
+              <p class="mt-1 text-gray-500">
+                Manage your company profiles and social media accounts
+              </p>
+            </div>
           </div>
           <div class="flex items-center space-x-4">
             
@@ -48,12 +50,15 @@
     <div v-else-if="error" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="text-center py-12">
         <div class="text-red-600 mb-4">{{ error }}</div>
-        <button 
-          @click="fetchProfiles"
-          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-        >
-          Try Again
-        </button>
+        <div class="space-x-3">
+          <button 
+            v-if="selectedTeamId"
+            @click="fetchProfiles"
+            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     </div>
 
@@ -159,13 +164,15 @@ const route = useRoute()
 
 // Initialize from URL and load profiles
 const initializeFromUrl = async () => {
-  if (!isAuthenticated.value) return
+  if (!isAuthenticated.value) {
+    return
+  }
 
-  // Get team ID from URL parameter
-  const teamIdFromUrl = route.query.team ? parseInt(route.query.team as string) : null
+  // Get team ID from route params (from /teams/[id]/profile)
+  const teamIdFromParams = route.params.id ? parseInt(route.params.id as string) : null
   
-  if (teamIdFromUrl) {
-    selectedTeamId.value = teamIdFromUrl
+  if (teamIdFromParams) {
+    selectedTeamId.value = teamIdFromParams
     await fetchProfiles()
   } else {
     error.value = 'Please select a team to view profiles'
@@ -249,9 +256,6 @@ const closeInviteModal = () => {
 
 const sendInvitation = () => {
   // Here you would normally send the invitation to your backend
-  console.log('Sending invitation to:', inviteForm.value.email)
-  
-  alert(`Invitation sent to ${inviteForm.value.email}`)
   closeInviteModal()
 }
 

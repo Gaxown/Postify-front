@@ -233,7 +233,6 @@ const hasVideoFile = computed(() => {
 
 const onTagsChanged = (tags: any[]) => {
   // Handle tags change if needed
-  console.log('Selected tags:', tags)
 }
 
 const onPlatformChanged = (platform: Platform) => {

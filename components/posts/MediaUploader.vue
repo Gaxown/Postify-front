@@ -171,11 +171,6 @@ const maxFiles = computed(() => {
 const handleFileUpload = (event: Event) => {
   const files = (event.target as HTMLInputElement).files
   if (files) {
-    console.log('Selected files:', Array.from(files).map(f => ({
-      name: f.name,
-      type: f.type,
-      size: f.size
-    })))
     processFiles(Array.from(files))
   }
 }
@@ -231,9 +226,6 @@ const processFiles = (files: File[]) => {
   
   // Show error for invalid files
   if (invalidFiles.length > 0) {
-    console.error('❌ Unsupported files detected:', invalidFiles.join(', '))
-    console.log('📝 Supported video formats: MP4, MOV, AVI, WMV, FLV, WebM, MKV, M4V, 3GP, MPG, MPEG')
-    console.log('📝 Supported image formats: JPG, PNG, GIF, WebP, BMP, SVG, TIFF')
     // You can emit an error event here if needed
   }
   

@@ -252,8 +252,6 @@ const handleSubmit = async () => {
     avatarFile: avatarFile.value
   }
   
-  console.log('Form submitted:', submitData)
-  
   if (props.type === 'team') {
     await createTeam(submitData)
   } else if (props.type === 'profile') {
@@ -271,13 +269,11 @@ const handleAvatarUpload = (event) => {
   if (file) {
     // Vérifier la taille (2MB max)
     if (file.size > 2 * 1024 * 1024) {
-      alert('File size must be less than 2MB')
       return
     }
     
     // Vérifier le type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
       return
     }
     

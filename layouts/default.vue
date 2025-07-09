@@ -3,7 +3,7 @@ import Calendar from "./Calendar.vue";
 import Kanban from "./Kanban.vue";
 import Login from "./Login.vue";
 import teams from "./teams.vue";
-import profiles from "./profiles.vue";
+
 import Scheduler from "./Scheduler.vue";
 
 
@@ -12,10 +12,10 @@ import Scheduler from "./Scheduler.vue";
 <template>
   <!-- <profiles /> -->
   <!-- <Calendar /> -->
-  <!-- <Login /> -->
+  <Login />
   <!-- <teams /> -->
   <!-- <Kanban /> -->
-  <Scheduler />
+  <!-- <Scheduler /> -->
   <!-- <PostCreationModal /> -->
   <!-- Posts -->
   <!-- Twitter/X Post -->
