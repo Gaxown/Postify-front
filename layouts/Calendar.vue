@@ -353,7 +353,7 @@ const ex_posts = ref([
     id: 5,
     content: "Thursday post content",
     time: "1:00 PM",
-    date: "2025-07-03",
+    date: "2025-07-08",
     platform: "twitter",
   },
 ]);
@@ -365,7 +365,7 @@ const posts = ref([
       "Just launched our new product! Check it out and let us know what you think. #ProductLaunch #Innovation",
     platform: "tiktok",
     time: "12:05 AM",
-    date: "2025-07-04",
+    date: "2025-07-08",
     media: {
       type: "image",
       url: "https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FtcGxlfGVufDB8fDB8fHww",
@@ -379,7 +379,7 @@ const posts = ref([
       "Behind the scenes look at our team working hard! 💪 #TeamWork #Company",
     platform: "instagram",
     time: "12:35 AM",
-    date: "2025-07-04",
+    date: "2025-07-08",
     media: {
       type: "image",
       url: "https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FtcGxlfGVufDB8fDB8fHww",
@@ -393,7 +393,7 @@ const posts = ref([
       "Quick tip: Always backup your data before making major changes! #TechTips",
     platform: "facebook",
     time: "12:40 AM",
-    date: "2025-07-04",
+    date: "2025-07-08",
     media: {
       type: "image",
       url: "https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FtcGxlfGVufDB8fDB8fHww",
@@ -408,7 +408,7 @@ const posts = ref([
       "Excited for our upcoming webinar! Register now! #Webinar #Learning",
     platform: "linkedin",
     time: "8:05 PM",
-    date: "2025-07-04",
+    date: "2025-07-08",
     media: {
       type: "image",
       url: "https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FtcGxlfGVufDB8fDB8fHww",
@@ -421,7 +421,7 @@ const posts = ref([
     content: "Check out our latest blog post on productivity hacks! #BlogPost",
     platform: "pinterest",
     time: "10:05 PM",
-    date: "2025-07-04",
+    date: "2025-07-08",
     media: {
       type: "image",
       url: "https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FtcGxlfGVufDB8fDB8fHww",
@@ -434,7 +434,7 @@ const posts = ref([
     content: "Join us for a live Q&A session tomorrow! #LiveSession",
     platform: "twitter",
     time: "12:05 AM",
-    date: "2025-07-02",
+    date: "2025-07-08",
     media: {
       type: "image",
       url: "https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FtcGxlfGVufDB8fDB8fHww",
@@ -822,12 +822,9 @@ const isPastDateTime = (date, hour) => {
 
   // Handle 12 AM as hour 0, 12 PM as hour 12
   let actualHour = hourIndex;
-  if (hourIndex === 0)
-    actualHour = 0; // 12 AM
-  else if (hourIndex <= 11)
-    actualHour = hourIndex; // 1 AM - 11 AM
-  else if (hourIndex === 12)
-    actualHour = 12; // 12 PM
+  if (hourIndex === 0) actualHour = 0; // 12 AM
+  else if (hourIndex <= 11) actualHour = hourIndex; // 1 AM - 11 AM
+  else if (hourIndex === 12) actualHour = 12; // 12 PM
   else actualHour = hourIndex; // 1 PM - 11 PM (13-23)
 
   checkDate.setHours(actualHour, 0, 0, 0);
@@ -843,8 +840,7 @@ onMounted(() => {
 
 <style scoped>
 .calendar-container {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .auto-rows-fr {

@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/icon",
     "@vueuse/motion/nuxt",
+    "@unocss/nuxt",
   ],
 
   tailwindcss: {
@@ -15,6 +16,13 @@ export default defineNuxtConfig({
     configPath: "tailwind.config.js",
     exposeConfig: false,
     viewer: true,
+  },
+
+  unocss: {
+    icons: true,
+    presets: [
+      // Import presets using dynamic imports instead of require
+    ],
   },
 
   app: {
@@ -33,7 +41,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000/api'
-    }
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || "http://localhost:8000/api",
+    },
   },
 });
