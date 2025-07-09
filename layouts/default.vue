@@ -4,6 +4,7 @@ import Kanban from "./Kanban.vue";
 import Login from "./Login.vue";
 import teams from "./teams.vue";
 import profiles from "./profiles.vue";
+import Scheduler from "./Scheduler.vue";
 
 
 </script>
@@ -12,9 +13,9 @@ import profiles from "./profiles.vue";
   <!-- <profiles /> -->
   <!-- <Calendar /> -->
   <!-- <Login /> -->
-  <teams />
+  <!-- <teams /> -->
   <!-- <Kanban /> -->
-  <!-- <Scheduler /> -->
+  <Scheduler />
   <!-- <PostCreationModal /> -->
   <!-- Posts -->
   <!-- Twitter/X Post -->
