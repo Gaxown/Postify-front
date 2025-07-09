@@ -65,7 +65,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const selectTeam = () => {
-  // Navigate to profiles page with selected team
-  navigateTo(`/profiles?team=${props.team.id}`)
+  // Navigate to team profiles page using nested route
+  navigateTo(`/teams/${props.team.id}/profile`)
 }
 </script> 

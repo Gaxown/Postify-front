@@ -3,7 +3,8 @@ import Calendar from "./Calendar.vue";
 import Kanban from "./Kanban.vue";
 import Login from "./Login.vue";
 import teams from "./teams.vue";
-import profiles from "./profiles.vue";
+
+import Scheduler from "./Scheduler.vue";
 
 
 </script>
@@ -11,8 +12,8 @@ import profiles from "./profiles.vue";
 <template>
   <!-- <profiles /> -->
   <!-- <Calendar /> -->
-  <!-- <Login /> -->
-  <teams />
+  <Login />
+  <!-- <teams /> -->
   <!-- <Kanban /> -->
   <!-- <Scheduler /> -->
   <!-- <PostCreationModal /> -->

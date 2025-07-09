@@ -287,8 +287,8 @@ const handleLogin = async () => {
       setAuth(response.token, response.user)
     }
     
-    // On success, redirect to dashboard
-    await navigateTo('/')
+    // On success, redirect to teams page
+    await navigateTo('/teams')
     
   } catch (error: any) {
     console.error('Login error:', error)

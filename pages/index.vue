@@ -227,14 +227,12 @@ const getRelativeTime = (date) => {
 
 const openNewPostModal = () => {
   showNewPostModal.value = true
-  alert('New Post Modal would open here!')
 }
 
 const publishPost = (postId) => {
   const post = todaysPosts.value.find(p => p.id === postId)
   if (post) {
     post.status = 'published'
-    alert(`Post "${post.content.substring(0, 50)}..." has been published!`)
     // Remove from scheduled posts
     const index = todaysPosts.value.findIndex(p => p.id === postId)
     if (index !== -1) {
@@ -248,7 +246,7 @@ const editPost = (postId) => {
 }
 
 const showPostOptions = (postId) => {
-  alert(`Post options for ${postId} - Dropdown would appear here!`)
+  // TODO: Implement post options functionality
 }
 
 // Meta

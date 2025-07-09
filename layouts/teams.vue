@@ -10,11 +10,7 @@
           </div>
           <div class="flex items-center space-x-4">
             <!-- Team Invitations -->
-            <TeamInvitations
-              :invitations="pendingInvitations"
-              @accept="acceptInvitation"
-              @reject="rejectInvitation"
-            />
+            <TeamInvitations />
             
             <button
               @click="openCreateModal"
@@ -99,14 +95,6 @@ interface Team {
   createdAt: string
 }
 
-interface TeamInvitation {
-  id: string
-  teamName: string
-  teamColor: string
-  invitedBy: string
-  invitedAt: string
-}
-
 // Direct API integration instead of using composable
 const { getAuthHeaders } = useAuth()
 const teams = ref<Team[]>([])
@@ -175,114 +163,6 @@ const clearError = () => {
 // Modal ref
 const createModalRef = ref(null)
 
-const pendingInvitations = ref<TeamInvitation[]>([
-  {
-    id: '1',
-    teamName: 'Design Squad',
-    teamColor: '#EC4899',
-    invitedBy: 'Jessica Williams',
-    invitedAt: '2024-01-20'
-  },
-  {
-    id: '2',
-    teamName: 'Development Team',
-    teamColor: '#10B981',
-    invitedBy: 'Ahmed Hassan',
-    invitedAt: '2024-01-18'
-  },
-  {
-    id: '3',
-    teamName: 'Marketing Warriors',
-    teamColor: '#F59E0B',
-    invitedBy: 'Sarah Johnson',
-    invitedAt: '2024-01-19'
-  },
-  {
-    id: '4',
-    teamName: 'Data Analytics',
-    teamColor: '#3B82F6',
-    invitedBy: 'Omar Benali',
-    invitedAt: '2024-01-17'
-  },
-  {
-    id: '5',
-    teamName: 'Creative Studio',
-    teamColor: '#8B5CF6',
-    invitedBy: 'Fatima Zahra',
-    invitedAt: '2024-01-21'
-  },
-  {
-    id: '6',
-    teamName: 'Mobile Squad',
-    teamColor: '#EF4444',
-    invitedBy: 'Youssef Alami',
-    invitedAt: '2024-01-16'
-  },
-  {
-    id: '7',
-    teamName: 'Quality Assurance',
-    teamColor: '#06B6D4',
-    invitedBy: 'Aicha Mansouri',
-    invitedAt: '2024-01-22'
-  },
-  {
-    id: '8',
-    teamName: 'Sales Force',
-    teamColor: '#84CC16',
-    invitedBy: 'Khalid Benkirane',
-    invitedAt: '2024-01-15'
-  },
-  {
-    id: '9',
-    teamName: 'DevOps Heroes',
-    teamColor: '#F97316',
-    invitedBy: 'Rachid Taha',
-    invitedAt: '2024-01-23'
-  },
-  {
-    id: '10',
-    teamName: 'Customer Success',
-    teamColor: '#A855F7',
-    invitedBy: 'Leila Chraibi',
-    invitedAt: '2024-01-14'
-  },
-  {
-    id: '11',
-    teamName: 'Product Strategy',
-    teamColor: '#059669',
-    invitedBy: 'Hassan Ouali',
-    invitedAt: '2024-01-13'
-  },
-  {
-    id: '12',
-    teamName: 'Research Lab',
-    teamColor: '#DC2626',
-    invitedBy: 'Nadia Bennani',
-    invitedAt: '2024-01-24'
-  },
-  {
-    id: '13',
-    teamName: 'Security Team',
-    teamColor: '#7C3AED',
-    invitedBy: 'Karim El Fassi',
-    invitedAt: '2024-01-12'
-  },
-  {
-    id: '14',
-    teamName: 'Content Hub',
-    teamColor: '#DB2777',
-    invitedBy: 'Meryem Slaoui',
-    invitedAt: '2024-01-25'
-  },
-  {
-    id: '15',
-    teamName: 'Innovation Lab',
-    teamColor: '#2563EB',
-    invitedBy: 'Abdellatif Kharbouch',
-    invitedAt: '2024-01-11'
-  }
-])
-
 const openCreateModal = () => {
   clearError() // Clear any previous errors
   if (createModalRef.value) {
@@ -294,32 +174,6 @@ const openCreateModal = () => {
 onMounted(() => {
   fetchTeams()
 })
-
-const acceptInvitation = (invitation: TeamInvitation) => {
-  // Remove from pending invitations
-  const index = pendingInvitations.value.findIndex(inv => inv.id === invitation.id)
-  if (index !== -1) {
-    pendingInvitations.value.splice(index, 1)
-  }
-  
-  // Add user to the team (in a real app, you'd make an API call)
-  console.log(`Accepted invitation to join ${invitation.teamName}`)
-  
-  // You could add logic here to add the user to the actual team
-  // For example, find the team and add current user to members
-}
-
-const rejectInvitation = (invitation: TeamInvitation) => {
-  // Remove from pending invitations
-  const index = pendingInvitations.value.findIndex(inv => inv.id === invitation.id)
-  if (index !== -1) {
-    pendingInvitations.value.splice(index, 1)
-  }
-  
-  console.log(`Rejected invitation to join ${invitation.teamName}`)
-}
-
-
 </script>
 
 <style scoped>

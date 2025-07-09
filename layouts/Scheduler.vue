@@ -19,7 +19,7 @@
           </nav>
         </div>
         <div class="flex items-center space-x-3">
-          <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+          <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
             <Plus class="w-4 h-4" />
             <span>New</span>
           </button>
@@ -176,7 +176,7 @@
                 Calendar
               </button>
             </div>
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+            <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
               <Plus class="w-4 h-4" />
               <span>New Post</span>
             </button>
@@ -224,7 +224,7 @@
             <div class="space-y-3">
               <div v-for="time in todayTimes" :key="time" class="flex items-center space-x-4 p-4 bg-white rounded-lg border border-gray-200">
                 <div class="text-sm font-medium text-gray-900 w-16">{{ time }}</div>
-                <button class="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
+                <button @click="openCreateModal" class="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
                   <Plus class="w-4 h-4" />
                   <span class="text-sm font-medium">New</span>
                 </button>
@@ -238,7 +238,7 @@
             <div class="space-y-3">
               <div v-for="time in tomorrowTimes" :key="time" class="flex items-center space-x-4 p-4 bg-white rounded-lg border border-gray-200">
                 <div class="text-sm font-medium text-gray-900 w-16">{{ time }}</div>
-                <button class="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
+                <button @click="openCreateModal" class="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
                   <Plus class="w-4 h-4" />
                   <span class="text-sm font-medium">New</span>
                 </button>
@@ -248,18 +248,31 @@
         </div>
       </main>
     </div>
+
+    <!-- Create Post Modal -->
+    <CreatePostModal ref="createPostModalRef" />
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { 
   Plus, Filter, HelpCircle, Gift, User, X, Facebook, Instagram, 
   Linkedin, ChevronDown, Tag, Settings, CheckCircle, Share2, 
   List, Calendar, MapPin
 } from 'lucide-vue-next'
+import CreatePostModal from '@/components/posts/CreatePostModal.vue'
 
 const todayTimes = ['11:06 AM', '11:08 AM', '11:27 AM', '11:28 AM', '2:56 PM', '3:51 PM', '4:00 PM']
 const tomorrowTimes = ['11:06 AM', '11:08 AM', '11:27 AM']
+
+const createPostModalRef = ref()
+
+const openCreateModal = () => {
+  if (createPostModalRef.value) {
+    createPostModalRef.value.openModal()
+  }
+}
 </script>
 
 <style scoped>
