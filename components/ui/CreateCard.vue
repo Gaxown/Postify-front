@@ -1,5 +1,6 @@
 <template>
   <div
+    @click="onClick"
     class="group relative bg-white rounded-xl border-2 border-dashed border-gray-300 hover:border-purple-400 p-8 flex flex-col items-center justify-center min-h-[280px] cursor-pointer transition-all duration-200 hover:shadow-md"
   >
     <div
@@ -22,12 +23,26 @@
     <h3
       class="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors"
     >
-      Create New Team
+      {{ title }}
     </h3>
     <p class="text-sm text-gray-500 text-center mt-2">
-      Start collaborating with your team members
+      {{ description }}
     </p>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+interface Props {
+  title: string
+  description: string
+  onCreate?: () => void
+}
+
+const props = defineProps<Props>()
+
+const onClick = () => {
+  if (props.onCreate) {
+    props.onCreate()
+  }
+}
+</script> 
