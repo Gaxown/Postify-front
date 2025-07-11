@@ -65,7 +65,11 @@
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
         <!-- Create New Team Card -->
-        <CreateTeamCard @create="openCreateModal" />
+        <CreateCard 
+          title="Create New Team"
+          description="Start collaborating with your team members"
+          :on-create="openCreateModal" 
+        />
 
         <!-- Team Cards -->
         <Card v-for="team in teams" :key="team.id" :data="team as Team" />
@@ -84,7 +88,7 @@
 import { ref, onMounted } from "vue";
 import TeamInvitations from "@/components/teams/TeamInvitations.vue";
 import CreateFormModal from "@/components/ui/CreateFormModal.vue";
-import CreateTeamCard from "@/components/teams/CreateTeamCard.vue";
+import CreateCard from "~/components/ui/CreateCard.vue";
 import Card from "~/components/ui/Card.vue";
 
 interface TeamMember {
