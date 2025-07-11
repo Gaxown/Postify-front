@@ -7,11 +7,11 @@
 <script setup lang="ts">
 // Use the profiles layout
 definePageMeta({
-  layout: 'profiles'
-})
+  layout: "profiles",
+});
 
 // Set page title with team context
 useHead({
-  title: 'Team Profiles - Postify'
-})
-</script> 
+  title: "Team Profiles - Postify",
+});
+</script>
