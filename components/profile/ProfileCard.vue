@@ -1,5 +1,6 @@
 <template>
   <div
+    @click="handleClick"
     class="group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer"
   >
     <div class="p-6">
@@ -48,6 +49,7 @@ import ProfileAvatar from './ProfileAvatar.vue'
 import PlatformIcons from './PlatformIcons.vue'
 
 export interface Profile {
+  id: number
   name: string
   description: string
   avatar?: string
@@ -57,9 +59,14 @@ export interface Profile {
 
 interface Props {
   profile: Profile
+  profileId?: number
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
-// Plus d'emits
+const handleClick = () => {
+  // Navigate to the scheduler page with the profile ID from database
+  const profileId = props.profileId || props.profile.id
+  navigateTo(`/profiles/${profileId}/social-accounts`)
+}
 </script> 

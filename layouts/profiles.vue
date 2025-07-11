@@ -86,9 +86,10 @@
 
         <!-- Profile Cards -->
         <ProfileCard
-          v-for="(profile, index) in profiles"
-          :key="index"
+          v-for="profile in profiles"
+          :key="profile.id"
           :profile="profile"
+          :profile-id="profile.id"
         />
       </div>
     </div>
@@ -203,10 +204,11 @@ const fetchProfiles = async () => {
     const response = await $fetch(`${apiBase}/teams/${selectedTeamId.value}/profiles`, {
       method: 'GET',
       headers
-    }) as { name: string; description?: string; avatar?: string; color?: string; social_accounts?: { platform: string }[] }[]
+    }) as { id: number; name: string; description?: string; avatar?: string; color?: string; social_accounts?: { platform: string }[] }[]
     
     // Transform API response - keep only what's needed
     profiles.value = response.map((profile) => ({
+      id: profile.id,
       name: profile.name || '',
       description: profile.description || 'No description available',
       avatar: profile.avatar ? `${apiBase.replace('/api', '')}/storage/${profile.avatar}` : '',

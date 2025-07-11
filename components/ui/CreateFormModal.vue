@@ -210,7 +210,7 @@ const createTeam = async (formData) => {
 }
 
 const createProfile = async (formData) => {
-  const teamId = route.query.team ? parseInt(route.query.team) : null
+  const teamId = route.params.id
   
   internalLoading.value = true
 
@@ -251,11 +251,12 @@ const handleSubmit = async () => {
     ...formData.value,
     avatarFile: avatarFile.value
   }
-  
+
   if (props.type === 'team') {
     await createTeam(submitData)
   } else if (props.type === 'profile') {
     await createProfile(submitData)
+ 
   }
 }
 
