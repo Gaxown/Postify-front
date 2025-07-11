@@ -416,9 +416,9 @@ const handleRegister = async () => {
       acceptTerms: false
     }
     
-    // Redirect to dashboard after successful registration
+    // Redirect to teams page after successful registration
     setTimeout(() => {
-      navigateTo('/')
+      navigateTo('/teams')
     }, 2000)
     
   } catch (error: any) {

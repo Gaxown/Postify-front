@@ -1,5 +1,7 @@
 <template>
+  <!-- when clicked the card qshould redirect to either the teams/id/profiles or profiles/1 -->
   <div
+    @click="handleRedirection"
     class="max-w-[250px] min-h-[300px] group relative flex-col bg-white shadow-sm border rounded-xl border-gray-200 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer"
   >
     <!--  transform -translate-x-1/2 -translate-y-1/2 -->
@@ -11,7 +13,19 @@
       class="absolute w-14 h-14 top-[30%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 rounded-full text-white text-xl font-bold flex items-center justify-center border-4 border-white"
       :style="{ backgroundColor: data.color }"
     >
-      {{ data.name.charAt(0) }}
+      <div
+        v-if="!data.avatar"
+        class="w-full h-full flex items-center justify-center"
+      >
+        {{ data.name.charAt(0).toUpperCase() }}
+      </div>
+      <img
+        v-else
+        :src="data.avatar"
+        class="w-full h-full rounded-full"
+        alt=""
+        srcset=""
+      />
     </div>
     <!-- Team info -->
     <div class="flex flex-col items-start justify-between h-[70%] rounded-b-xl">
@@ -21,6 +35,7 @@
       </h3>
       <p class="text-sm text-gray-500 px-3">
         {{ data.description.substring(0, 150) }}...
+        <!-- {{ data }}... -->
       </p>
 
       <!-- Members Length -->
@@ -89,6 +104,7 @@
 import Avatar from "~/components/ui/Avatar.vue";
 import PlatformIcons from "../profile/PlatformIcons.vue";
 import PlatformIcon from "./PlatformIcon.vue";
+import { Database } from "lucide-vue-next";
 
 interface TeamMember {
   id: string;
@@ -133,5 +149,21 @@ interface Props {
   data: Team | Profile;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const handleRedirection = () => {
+  const data = props.data;
+  console.log(data);
+
+  //check te type of data Team or Profile
+
+  if ("members" in data) {
+    // Redirect to team profiles
+    navigateTo(`/teams/${data.id}/profiles`);
+  } else {
+    // Redirect to profiile details
+    // navigateTo(`/teams/${data.team.id}/profiles/${data.id}`);
+    // navigateTo(`/profiles/${data.id}`);
+  }
+};
 </script>

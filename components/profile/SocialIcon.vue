@@ -87,7 +87,7 @@ const platforms: Record<
     icon: "ri:tiktok-line",
     color: "#000000",
     gradient:
-      "linear-gradient(135deg, #25F4EE 0%, #25F4EE 40%, #000000 50%, #000000 55%, #FF0050 65%, #FF0050 100%)",
+      "linear-gradient(125deg, #25F4EE 0%, #25F4EE 35%, #000000 50%, #000000 55%, #FF0050 65%, #FF0050 100%)",
   },
   threads: {
     icon: "ri:at-line",
@@ -162,7 +162,6 @@ const iconStyle = computed(() => {
   } else {
     style.background = "white";
   }
-
   return style;
 });
 

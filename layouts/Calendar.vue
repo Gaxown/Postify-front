@@ -456,7 +456,6 @@ const fetchPosts = async () => {
     if (!response.ok) throw new Error("Failed to fetch posts");
     const data = await response.json();
     posts.value = data;
-    console.log("Posts fetched successfully:", posts.value);
   } catch (error) {
     console.error("Error fetching posts:", error);
   }

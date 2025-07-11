@@ -40,7 +40,8 @@
     "vue-chart-3": "^3.1.8",
     "vue-draggable-plus": "^0.6.0",
     "vue-final-modal": "^4.5.5",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vue3-emoji-picker": "^1.1.8"
   },
   "devDependencies": {
     "@iconify-json/fa6-brands": "^1.2.5",

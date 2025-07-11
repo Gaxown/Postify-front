@@ -1,7 +1,6 @@
 <template>
   <div
     class="group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer"
-    @click="$emit('select', profile)"
   >
     <div class="p-6">
       <div class="flex items-center justify-between mb-4">
@@ -72,27 +71,14 @@
 
 <script setup lang="ts">
 import ProfileAvatar from "./ProfileAvatar.vue";
-import PlatformIcons from "./old_PlatformIcons.vue";
+import PlatformIcons from "./PlatformIcons.vue";
 
-interface SocialAccount {
-  id: string;
-  platform: string;
-  username: string;
-  followers: number;
-}
-
-interface Profile {
-  id: string;
+export interface Profile {
   name: string;
   description: string;
   avatar?: string;
   color: string;
-  teamId: string;
-  teamName: string;
-  teamColor: string;
-  accounts: SocialAccount[];
-  platforms: string[];
-  createdAt: string;
+  accounts: { platform: string }[];
 }
 
 interface Props {
@@ -100,8 +86,4 @@ interface Props {
 }
 
 defineProps<Props>();
-
-defineEmits<{
-  select: [profile: Profile];
-}>();
 </script>

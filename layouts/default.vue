@@ -5,6 +5,7 @@ import Scheduler from "./Scheduler.vue";
 import Calendar from "./Calendar.vue";
 import Post from "./Post.vue";
 import SocialIcon from "~/components/profile/SocialIcon.vue";
+import Login from "./Login.vue";
 </script>
 
 <template>
@@ -73,8 +74,11 @@ import SocialIcon from "~/components/profile/SocialIcon.vue";
   </div> -->
   <!-- <Profiles /> -->
   <!-- test a post with sample data -->
-  <Post
+  <Login />
+
+  <!-- <Post
     platform="tiktok"
+    tab="sent"
     :post-data="{
       date: 'Yesterday',
       month: 'June 30',
@@ -86,5 +90,5 @@ import SocialIcon from "~/components/profile/SocialIcon.vue";
         'https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FtcGxlfGVufDB8fDB8fHww',
       createdText: 'You created this 19 hours ago',
     }"
-  />
+  /> -->
 </template>
