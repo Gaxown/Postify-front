@@ -74,7 +74,8 @@ import Login from "./Login.vue";
   </div> -->
   <!-- <Profiles /> -->
   <!-- test a post with sample data -->
-  <Login />
+  <!-- <Login /> -->
+  <Scheduler />
 
   <!-- <Post
     platform="tiktok"
