@@ -39,126 +39,55 @@
       </div>
     </header>
 
-    <!-- Two-factor authentication banner -->
-    <div class="bg-blue-50 border-b border-blue-200 px-4 py-3">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <span class="text-blue-800 text-sm">
-            <strong>Set up two-factor authentication:</strong> For added security and easier logins, we recommend setting up a two-factor authentication.
-            <a href="#" class="text-blue-600 underline ml-1">Learn more</a>
-          </span>
-        </div>
-        <div class="flex items-center space-x-3">
-          <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium">
-            Set up now
-          </button>
-          <button class="text-blue-600 hover:text-blue-800">
-            <X class="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-
     <div class="flex">
       <!-- Sidebar -->
-      <aside class="w-64 bg-white border-r border-gray-200 min-h-screen">
-        <div class="p-4">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="font-semibold text-gray-900">Channels</h2>
-            <button class="p-1 text-gray-400 hover:text-gray-600">
-              <Plus class="w-4 h-4" />
-            </button>
-          </div>
-
-          <div class="space-y-2">
-            <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
-              <span>All Channels</span>
-              <span class="bg-gray-100 px-2 py-1 rounded text-xs">0</span>
-            </div>
-
-            <!-- Channel Items -->
-            <div class="space-y-1">
-              <div class="flex items-center space-x-3 p-2 rounded-lg bg-blue-50 border border-blue-200">
-                <div class="relative">
-                  <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
-                    <span class="text-white text-xs font-medium">G</span>
-                  </div>
-                  <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
-                    <span class="text-white text-xs">T</span>
-                  </div>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-gray-900">gaxown07</div>
-                </div>
-                <span class="bg-gray-100 px-2 py-1 rounded text-xs">0</span>
-              </div>
-
-              <div class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50">
-                <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                  <span class="text-white text-xs font-medium">B</span>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-gray-900">BassamLahc97858</div>
-                </div>
-                <span class="bg-gray-100 px-2 py-1 rounded text-xs">0</span>
-              </div>
-            </div>
-
-            <!-- Social Media Connections -->
-            <div class="pt-4 space-y-2">
-              <button class="flex items-center space-x-3 p-2 w-full text-left hover:bg-gray-50 rounded-lg">
-                <Facebook class="w-5 h-5 text-blue-600" />
-                <span class="text-sm text-gray-700">Connect Facebook</span>
-              </button>
-              <button class="flex items-center space-x-3 p-2 w-full text-left hover:bg-gray-50 rounded-lg">
-                <Instagram class="w-5 h-5 text-pink-600" />
-                <span class="text-sm text-gray-700">Connect Instagram</span>
-              </button>
-              <button class="flex items-center space-x-3 p-2 w-full text-left hover:bg-gray-50 rounded-lg">
-                <Linkedin class="w-5 h-5 text-blue-700" />
-                <span class="text-sm text-gray-700">Connect LinkedIn</span>
-              </button>
-            </div>
-
-            <button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 pt-4">
-              <ChevronDown class="w-4 h-4" />
-              <span>Show more channels</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Bottom sidebar items -->
-        <div class="absolute bottom-4 left-4 space-y-2">
-          <button class="flex items-center space-x-3 p-2 w-full text-left hover:bg-gray-50 rounded-lg">
-            <Tag class="w-4 h-4 text-gray-600" />
-            <span class="text-sm text-gray-700">Manage Tags</span>
-          </button>
-          <button class="flex items-center space-x-3 p-2 w-full text-left hover:bg-gray-50 rounded-lg">
-            <Settings class="w-4 h-4 text-gray-600" />
-            <span class="text-sm text-gray-700">Manage Channels</span>
-          </button>
-        </div>
-      </aside>
+      <SchedulerSidebar :profile-id="profileId" @account-selected="handleAccountSelected" />
 
       <!-- Main Content -->
       <main class="flex-1 p-6">
         <!-- Profile Header -->
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center space-x-3">
-            <div class="relative">
-              <div class="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center">
-                <span class="text-white font-medium">G</span>
+                          <div class="relative">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden"
+                     :class="selectedAccount ? 'bg-gray-800' : 'bg-blue-600'">
+                  <!-- All Channels icon when no specific account selected -->
+                  <svg v-if="!selectedAccount" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  </svg>
+                  <!-- Account specific avatar -->
+                  <template v-else>
+                    <img
+                      v-if="selectedAccount.avatar && selectedAccount.avatar.trim()"
+                      :src="selectedAccount.avatar"
+                      :alt="selectedAccount.account_name"
+                      class="w-full h-full object-cover"
+                    />
+                    <span
+                      v-else
+                      class="text-white font-medium"
+                    >
+                      {{ getAccountInitials(selectedAccount.account_name) }}
+                    </span>
+                  </template>
+                </div>
+                <div v-if="selectedAccount" class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                  <PlatformIcon 
+                    :platform="selectedAccount.platform.toLowerCase()" 
+                    class="w-3 h-3"
+                  />
+                </div>
               </div>
-              <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                <span class="text-white text-xs">T</span>
-              </div>
-            </div>
             <div>
               <div class="flex items-center space-x-2">
-                <h1 class="text-xl font-semibold text-gray-900">gaxown07</h1>
+                <h1 class="text-xl font-semibold text-gray-900">
+                  {{ selectedAccount?.account_name || 'All Channels' }}
+                </h1>
                 <CheckCircle class="w-4 h-4 text-gray-400" />
               </div>
-              <p class="text-sm text-gray-600">0/30 posts sent this week</p>
+              <p class="text-sm text-gray-600">
+                {{ selectedAccount ? `${selectedAccount.platform} • 0/30 posts sent this week` : 'View all your connected social accounts' }}
+              </p>
             </div>
           </div>
           <div class="flex items-center space-x-3">
@@ -217,7 +146,8 @@
         </div>
 
         <!-- Schedule Content -->
-        <div class="space-y-6">
+        <!-- When specific account is selected -->
+        <div v-if="selectedAccount" class="space-y-6">
           <!-- Today Section -->
           <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Today, June 30</h3>
@@ -246,6 +176,21 @@
             </div>
           </div>
         </div>
+
+        <!-- When All Channels is selected -->
+        <div v-else class="flex flex-col items-center justify-center py-16">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">No posts scheduled</h3>
+          <p class="text-gray-600 mb-6">Schedule some posts and they will appear here</p>
+          <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+            <Plus class="w-4 h-4" />
+            <span>New Post</span>
+          </button>
+        </div>
       </main>
     </div>
 
@@ -257,11 +202,19 @@
 <script setup>
 import { ref } from 'vue'
 import { 
-  Plus, Filter, HelpCircle, Gift, User, X, Facebook, Instagram, 
-  Linkedin, ChevronDown, Tag, Settings, CheckCircle, Share2, 
-  List, Calendar, MapPin
+  Plus, Filter, HelpCircle, Gift, User, X, CheckCircle, Share2, 
+  List, Calendar, MapPin, Tag, ChevronDown
 } from 'lucide-vue-next'
 import CreatePostModal from '@/components/posts/CreatePostModal.vue'
+import SchedulerSidebar from '@/components/layout/SchedulerSidebar.vue'
+import PlatformIcon from '@/components/ui/PlatformIcon.vue'
+
+// Get profile ID from route (passed from the page)
+const route = useRoute()
+const profileId = route.params.id
+
+// Selected account state
+const selectedAccount = ref(null)
 
 const todayTimes = ['11:06 AM', '11:08 AM', '11:27 AM', '11:28 AM', '2:56 PM', '3:51 PM', '4:00 PM']
 const tomorrowTimes = ['11:06 AM', '11:08 AM', '11:27 AM']
@@ -272,6 +225,19 @@ const openCreateModal = () => {
   if (createPostModalRef.value) {
     createPostModalRef.value.openModal()
   }
+}
+
+// Handle account selection from sidebar
+const handleAccountSelected = (account) => {
+  selectedAccount.value = account
+}
+
+// Get initials from account name
+const getAccountInitials = (name) => {
+  if (!name) return 'U'
+  const names = name.split(' ')
+  if (names.length === 1) return names[0][0].toUpperCase()
+  return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
 }
 </script>
 

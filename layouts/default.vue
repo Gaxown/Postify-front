@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Teams from "./Teams.vue";
-import Profiles from "./Profiles.vue";
+// import Profiles from "./Profiles.vue";
 import Scheduler from "./Scheduler.vue";
 import Calendar from "./Calendar.vue";
 import Post from "./Post.vue";

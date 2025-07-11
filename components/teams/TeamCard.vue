@@ -66,6 +66,6 @@ const props = defineProps<Props>()
 
 const selectTeam = () => {
   // Navigate to team profiles page using nested route
-  navigateTo(`/teams/${props.team.id}/profile`)
+  navigateTo(`/teams/${props.team.id}/profiles`)
 }
 </script> 
