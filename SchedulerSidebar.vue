@@ -1,13 +1,5 @@
 <template>
   <div>
-    <FacebookPageSelectModal
-      :show="showModal"
-      :pages="pages"
-      :loading="modalLoading"
-      :error="modalError"
-      @close="showModal = false"
-      @select-page="handlePageSelected"
-    />
     <aside class="w-64 bg-white border-r border-gray-200 min-h-screen">
       <div class="p-4">
         <div class="flex items-center justify-between mb-4">
@@ -116,11 +108,10 @@
               </div>
 
               <!-- Connect Button View -->
-              <!-- @click="redirectToFacebook" -->
               <button
                 v-else
                 class="flex items-center space-x-3 p-2 w-full text-left rounded-lg hover:bg-gray-50"
-                @click="connectToFacebook"
+                @click="redirectToFacebook"
               >
                 <div
                   class="w-10 h-10 rounded-full border border-dashed border-gray-300 flex items-center justify-center"
@@ -159,12 +150,29 @@
         </button>
       </div>
     </aside>
+    <FacebookPageSelectModal
+      :show="showModal"
+      :pages="facebookPages"
+      :loading="modalLoading"
+      :error="modalError"
+      @close="showModal = false"
+      @select-page="handlePageSelected"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
 import { Plus, ChevronDown, Tag, Settings } from "lucide-vue-next";
+import { useAuth } from "@/composables/useAuth";
+
+interface Page {
+  id: string;
+  name: string;
+  access_token: string;
+  category: string;
+  fan_count: number;
+}
 
 interface SocialAccount {
   id: number;
@@ -179,14 +187,6 @@ interface SocialAccount {
   email?: string | null;
   created_at: string;
   updated_at: string;
-}
-
-interface Page {
-  id: string;
-  name: string;
-  access_token: string;
-  category: string;
-  fan_count: number;
 }
 
 interface Props {
@@ -209,20 +209,25 @@ const ALL_PLATFORMS = [
   { key: "tiktok", name: "TikTok" },
 ];
 
+// Get API base URL from runtime config
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBase;
+
+// Use authentication composable
+const { getAuthHeaders, isAuthenticated } = useAuth();
+
 // Reactive data
 const socialAccounts = ref<SocialAccount[]>([]);
-const loading = ref<boolean>(false);
+const loading = ref(true);
 const error = ref<string | null>(null);
 const selectedAccountId = ref<number | null>(null);
 const isAllChannelsSelected = ref(true);
 
 // Modal state
 const showModal = ref(false);
-const pages = ref<Page[]>([]);
+const facebookPages = ref<Page[]>([]);
 const modalLoading = ref(false);
 const modalError = ref<string | null>(null);
-let userToken = "";
-let platform = "";
 
 const displayChannels = computed(() => {
   return ALL_PLATFORMS.map((platform) => {
@@ -243,64 +248,6 @@ const displayChannels = computed(() => {
 
 const totalPostsCount = computed(() => 0);
 
-// Get API base URL from runtime config
-const config = useRuntimeConfig();
-const apiBase = config.public.apiBase;
-
-// Use authentication composable
-const { getAuthHeaders, isAuthenticated } = useAuth();
-
-const connectToFacebook = () => {
-  const statePayload = {
-    profile_id: props.profileId,
-    platform: "facebook",
-  };
-  const state = btoa(JSON.stringify(statePayload));
-
-  // The redirect URI must be the one whitelisted in the Facebook App settings.
-  const redirectUri =
-    "https://662855b090b3.ngrok-free.app/api/facebook/callback";
-  const clientId = "716713197417108";
-  const scope = "email,public_profile,pages_manage_posts,pages_read_engagement";
-
-  const facebookAuthUrl = `https://www.facebook.com/v3.3/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
-    redirectUri
-  )}&scope=${scope}&response_type=code&state=${state}`;
-
-  // Redirect the user's browser to the Facebook authentication page.
-  window.location.href = facebookAuthUrl;
-};
-
-const connectPage = async (selectedPage: Page) => {
-  try {
-    const postData = {
-      platform: platform,
-      page_id: selectedPage.id,
-      page_name: selectedPage.name,
-      page_access_token: selectedPage.access_token,
-      user_token: userToken,
-    };
-
-    await $fetch(`${apiBase}/profiles/${props.profileId}/connect-page`, {
-      method: "POST",
-      headers: {
-        ...getAuthHeaders(),
-        "Content-Type": "application/json",
-      },
-      body: postData,
-    });
-    showModal.value = false;
-    fetchSocialAccounts(); // Refresh the list
-  } catch (error) {
-    console.error("Error connecting page:", error);
-    modalError.value = "Failed to connect page.";
-  }
-};
-
-const handlePageSelected = (page: Page) => {
-  connectPage(page);
-};
-
 // Fetch social accounts for the profile
 const fetchSocialAccounts = async () => {
   if (!props.profileId || !isAuthenticated.value) {
@@ -312,10 +259,9 @@ const fetchSocialAccounts = async () => {
   error.value = null;
 
   try {
-    // Prepare headers with authentication
     const headers = {
-      Accept: "application/json",
       ...getAuthHeaders(),
+      Accept: "application/json",
     };
 
     const response = (await $fetch(
@@ -328,7 +274,6 @@ const fetchSocialAccounts = async () => {
 
     if (response.status === "success") {
       socialAccounts.value = response.data;
-      // Keep "All Channels" selected by default
       emit("accountSelected", null);
     } else {
       error.value = "Failed to load social accounts";
@@ -348,11 +293,73 @@ const fetchSocialAccounts = async () => {
   }
 };
 
+const redirectToFacebook = async () => {
+  const statePayload = {
+    profile_id: props.profileId,
+    platform: "facebook",
+  };
+  const state = btoa(JSON.stringify(statePayload));
+
+  const facebookAuthUrl = `https://www.facebook.com/v3.3/dialog/oauth?client_id=716713197417108&redirect_uri=https%3A%2F%2F5cd352589b2d.ngrok-free.app%2Fapi%2Ffacebook%2Fcallback&scope=email%2Cpublic_profile%2Cpages_manage_posts%2Cpages_read_engagement&response_type=code&state=${state}`;
+
+  window.location.href = facebookAuthUrl;
+};
+
+const handleFacebookCallback = async (code: string, state: string) => {
+  showModal.value = true;
+  modalLoading.value = true;
+  modalError.value = null;
+  try {
+    const response = await $fetch<{ pages: Page[] }>(
+      `${apiBase}/facebook/callback?code=${code}&state=${state}`,
+      {
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+    facebookPages.value = response.pages;
+  } catch (err: any) {
+    modalError.value = err.data?.message || "Failed to fetch Facebook pages.";
+  } finally {
+    modalLoading.value = false;
+  }
+};
+
+const handlePageSelected = async (page: Page) => {
+  modalLoading.value = true;
+  modalError.value = null;
+  try {
+    await $fetch(`${apiBase}/profiles/${props.profileId}/connect-page`, {
+      method: "POST",
+      headers: {
+        ...getAuthHeaders(),
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: {
+        page_id: page.id,
+        page_name: page.name,
+        page_access_token: page.access_token,
+        platform: "facebook",
+      },
+    });
+
+    showModal.value = false;
+    await fetchSocialAccounts(); // Refresh the accounts list
+  } catch (err: any) {
+    modalError.value = err.data?.message || "Failed to connect page.";
+  } finally {
+    modalLoading.value = false;
+  }
+};
+
 // Select account
 const selectAccount = (account: SocialAccount | null) => {
   selectedAccountId.value = account?.id || null;
   isAllChannelsSelected.value = false;
-  // Emit the selected account to parent component
   emit("accountSelected", account);
 };
 
@@ -360,31 +367,44 @@ const selectAccount = (account: SocialAccount | null) => {
 const selectAllChannels = () => {
   selectedAccountId.value = null;
   isAllChannelsSelected.value = true;
-  // Emit null to show all channels view
   emit("accountSelected", null);
 };
 
-// Get initials from account name
 const getAccountInitials = (name: string) => {
   if (!name) return "";
-  const names = name.split(" ");
-  if (names.length === 1) return names[0][0].toUpperCase();
-  return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+  const words = name.split(" ");
+  if (words.length > 1) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
 };
 
-onMounted(() => {
-  fetchSocialAccounts();
+onMounted(async () => {
+  await fetchSocialAccounts();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
+  const state = urlParams.get("state");
+
+  if (code && state) {
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+
+    handleFacebookCallback(code, state);
+  }
 });
 
-// Watch for profileId changes
 watch(
   () => props.profileId,
-  () => {
-    fetchSocialAccounts();
+  (newProfileId) => {
+    if (newProfileId) {
+      fetchSocialAccounts();
+    }
   },
   { immediate: true }
 );
 </script>
+
 <style scoped>
 .initials-span {
   display: flex;
